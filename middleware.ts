@@ -37,14 +37,10 @@ export const config = {
   // Only protect routes that are not public.
   // This matcher protects most of the app, assuming the landing page (/) and login/register are public.
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (NextAuth.js routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - Any API routes that don't require authentication (e.g., public API endpoints)
-     */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|api/public).*)',
+    // Only protect authenticated routes — leave public pages open
+    '/dashboard/:path*',
+    '/estimate/:path*',
+    '/api/estimates/:path*',
+    '/api/stripe/:path*',
   ],
 }
