@@ -17,23 +17,5 @@ export function getStripe(): Stripe {
   return stripeInstance
 }
 
-export const PLANS = {
-  FREE: {
-    name: 'Free',
-    price: 0,
-    estimatesLimit: 5,
-  },
-  PRO: {
-    name: 'Pro',
-    price: 4900, // $49.00 in cents
-    priceId: process.env.STRIPE_PRICE_PRO_MONTHLY!,
-    estimatesLimit: -1, // unlimited
-  },
-  TEAM: {
-    name: 'Team',
-    price: 9900, // $99.00 in cents
-    priceId: process.env.STRIPE_PRICE_TEAM_MONTHLY!,
-    estimatesLimit: -1,
-    seats: 5,
-  },
-}
+// Re-export PLANS so existing server imports still work
+export { PLANS } from './plans'

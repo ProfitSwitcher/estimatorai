@@ -1,16 +1,16 @@
 // app/dashboard/page.tsx
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
-  const router = useRouter()
 import axios from 'axios'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
-import { PLANS } from '@/lib/stripe' // Import PLANS
+import { PLANS } from '@/lib/plans'
 
 interface EstimateSummary {
   id: string
