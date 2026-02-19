@@ -98,7 +98,7 @@ Output format (JSON):
 Project Description:
 ${description}
 
-${photoAnalysis ? `Photo Analysis:\n\${photoAnalysis}\n` : ''}
+${photoAnalysis ? `Photo Analysis:\n${photoAnalysis}\n` : ''}
 
 Generate a detailed estimate with all labor, permits, materials, equipment, disposal.`
 
