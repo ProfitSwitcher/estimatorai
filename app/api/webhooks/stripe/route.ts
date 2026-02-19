@@ -1,6 +1,6 @@
 // app/api/webhooks/stripe/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe, PLANS } from '@/lib/stripe'
+import { getStripe, PLANS } from '@/lib/stripe'
 import { supabase } from '@/lib/db'
 import Stripe from 'stripe'
 
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
