@@ -67,7 +67,7 @@ async function analyzePhotos(photos: string[]) {
   ]
 
   const response = await getOpenAI().chat.completions.create({
-    model: 'gpt-4o', // ✅ Updated from gpt-4-vision-preview
+    model: 'gpt-4o-mini', // ✅ Updated from gpt-4-vision-preview
     messages,
     max_tokens: 1500
   })
@@ -111,7 +111,7 @@ ${photoAnalysis ? `Photo Analysis:\n${photoAnalysis}\n` : ''}
 Generate a detailed estimate with all labor, permits, materials, equipment, disposal.`
 
   const response = await getOpenAI().chat.completions.create({
-    model: 'gpt-4o', // ✅ Updated from gpt-4-turbo-preview
+    model: 'gpt-4o-mini', // ✅ Updated from gpt-4-turbo-preview
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userPrompt }
