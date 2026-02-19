@@ -1,9 +1,17 @@
 // lib/services/estimateAI.ts
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// Lazy init to ensure env vars are available at runtime
+let _openai: OpenAI | null = null
+function getOpenAI(): OpenAI {
+  if (!_openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY environment variable is not set')
+    }
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  }
+  return _openai
+}
 
 export interface EstimateRequest {
   description: string
@@ -58,7 +66,7 @@ async function analyzePhotos(photos: string[]) {
     }
   ]
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: 'gpt-4o', // ✅ Updated from gpt-4-vision-preview
     messages,
     max_tokens: 1500
@@ -102,7 +110,7 @@ ${photoAnalysis ? `Photo Analysis:\n${photoAnalysis}\n` : ''}
 
 Generate a detailed estimate with all labor, permits, materials, equipment, disposal.`
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: 'gpt-4o', // ✅ Updated from gpt-4-turbo-preview
     messages: [
       { role: 'system', content: systemPrompt },
