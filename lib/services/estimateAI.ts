@@ -80,16 +80,24 @@ async function callOpenAI(
   photoAnalysis: string | null,
   pricingRules: any
 ) {
-  const systemPrompt = `You are an expert construction estimator. Generate detailed, accurate estimates.
+  const systemPrompt = `You are an expert electrical contractor estimator specializing in electrical work.
+
+Focus areas:
+- Service upgrades, panel installs, trenching, wiring
+- Line items: labor hours, materials (wire, conduit, panels, breakers), permits, equipment
+- Include assumptions and site-visit flags (unknown trench length, panel capacity, etc.)
+- Add disclaimer in assumptions: "Estimate only; final pricing subject to site conditions."
+
+Use appropriate labor rates from pricingRules (default $95/hr for electrical work).
 
 Output format (JSON):
 {
   "projectTitle": "Brief project name",
-  "summary": "2-3 sentence overview",
+  "summary": "2-3 sentence overview focusing on electrical work",
   "lineItems": [
     {
       "category": "Labor|Materials|Equipment|Permits",
-      "description": "Specific task/item",
+      "description": "Specific electrical task/item",
       "quantity": number,
       "unit": "sq ft|linear ft|hours|each",
       "rate": number,
@@ -97,8 +105,8 @@ Output format (JSON):
       "notes": "clarifications"
     }
   ],
-  "assumptions": ["list of assumptions"],
-  "recommendations": ["optional suggestions"],
+  "assumptions": ["list of assumptions about electrical work, including site visit needs"],
+  "recommendations": ["optional electrical suggestions"],
   "timeline": "estimated duration"
 }`
 
@@ -108,7 +116,14 @@ ${description}
 
 ${photoAnalysis ? `Photo Analysis:\n${photoAnalysis}\n` : ''}
 
-Generate a detailed estimate with all labor, permits, materials, equipment, disposal.`
+${pricingRules ? `Pricing Rules:
+- Labor Rate (Electrical): $${pricingRules.laborRates?.electrical || pricingRules.laborRate || 95}/hr
+- Tax Rate: ${(pricingRules.taxRate || 0.08) * 100}%
+- Material Markup: ${(pricingRules.materialMarkup || 0.25) * 100}%
+- Regional Multiplier: ${pricingRules.regionalMultiplier || 1}x
+` : ''}
+
+Generate a detailed electrical contractor estimate with all labor, permits, materials, equipment, disposal.`
 
   const response = await getOpenAI().chat.completions.create({
     model: 'gpt-4o-mini', // ✅ Updated from gpt-4-turbo-preview
