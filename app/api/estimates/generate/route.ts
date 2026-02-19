@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Error generating estimate:', error)
     return NextResponse.json(
-      { error: 'Failed to generate estimate' },
+      { error: 'Failed to generate estimate', details: error?.message || String(error) },
       { status: 500 }
     )
   }
