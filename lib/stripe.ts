@@ -4,20 +4,18 @@ import Stripe from 'stripe'
 // Ensure Stripe is initialized only once
 let stripeInstance: Stripe | null = null
 
-function getStripeInstance(): Stripe {
+export function getStripe(): Stripe {
   if (stripeInstance) {
     return stripeInstance
   }
   if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('STRIPE_SECRET_KEY environment variable not set.')
+    throw new Error('STRIPE_SECRET_KEY environment variable not set. Add it to enable payments.')
   }
   stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2023-10-16', // Use a specific API version
+    apiVersion: '2023-10-16',
   })
   return stripeInstance
 }
-
-export const stripe = getStripeInstance()
 
 export const PLANS = {
   FREE: {
