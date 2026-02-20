@@ -99,13 +99,21 @@ export default function EstimatePage() {
     setLoading(true)
 
     try {
-      // ✅ Updated API endpoint (no port 3001, uses Next.js API route)
-      const response = await axios.post('/api/estimates/generate', {
-        description: input,
-        photos, // Send uploaded photo URLs
-        projectType: 'general_construction', // Example
-        location: 'US', // Example
+      // Use fetch for streaming support (avoids Vercel timeout)
+      const res = await fetch('/api/estimates/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          description: input,
+          photos,
+          projectType: 'electrical',
+          location: 'US',
+        }),
       })
+      const text = await res.text()
+      const response = { data: JSON.parse(text.trim()) }
+      
+      if (response.data.error) throw new Error(response.data.error)
 
       const generatedEstimate = response.data.estimate
       setEstimate(generatedEstimate)
