@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = isTest ? 'test-user-id' : (session.user as any).id
+    const userId = isTest ? 'test-user-id' : (session?.user as any)?.id
     const body = await req.json()
     const { description, photos, projectType, location } = body
 
