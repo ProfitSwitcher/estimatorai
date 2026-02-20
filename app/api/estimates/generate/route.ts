@@ -18,7 +18,7 @@ function getOpenAI(): OpenAI {
 
 export async function POST(req: NextRequest) {
   try {
-    // TEMPORARY: Allow test bypass
+    // TODO: REMOVE BEFORE PRODUCTION - Test bypass for build loop
     const testBypass = req.headers.get('x-test-bypass')
     const isTest = testBypass === 'build-loop-test-2026'
     

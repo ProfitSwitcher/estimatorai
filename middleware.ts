@@ -4,7 +4,8 @@ import { NextResponse } from 'next/server'
 
 export default withAuth(
   function middleware(req) {
-    // TEMPORARY: Allow test bypass with special header
+    // TODO: REMOVE BEFORE PRODUCTION - Test bypass for build loop
+    // This allows testing without authentication during development
     const testBypass = req.headers.get('x-test-bypass')
     if (testBypass === 'build-loop-test-2026') {
       return NextResponse.next()
@@ -14,7 +15,7 @@ export default withAuth(
   {
     callbacks: {
       async authorized({ token, req }) {
-        // TEMPORARY: Allow test bypass
+        // TODO: REMOVE BEFORE PRODUCTION - Test bypass for build loop
         const testBypass = req.headers.get('x-test-bypass')
         if (testBypass === 'build-loop-test-2026') {
           return true
