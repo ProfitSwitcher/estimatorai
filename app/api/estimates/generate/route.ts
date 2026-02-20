@@ -38,22 +38,22 @@ export async function POST(req: NextRequest) {
     const laborRate = pricingRules.laborRates?.electrical || pricingRules.laborRate || 95
     const taxRate = pricingRules.taxRate || 0.08
 
-    const systemPrompt = `You are an expert electrical contractor estimator. Output valid JSON only.
-Keep response compact. Max 8 line items.
-JSON format: {"projectTitle":"...","summary":"...","lineItems":[{"category":"Labor|Materials|Equipment|Permits","description":"...","quantity":0,"unit":"...","rate":0,"total":0}],"assumptions":["..."],"recommendations":["..."],"timeline":"..."}
-Labor rate: $${laborRate}/hr. Always include "Estimate only; final pricing subject to site conditions." in assumptions.`
+    // SHORTER PROMPT - must finish under 10 seconds
+    const systemPrompt = `Expert electrical estimator. Output valid JSON only.
+Format: {"projectTitle":"...","summary":"...","lineItems":[{"category":"Labor|Materials","description":"...","quantity":1,"unit":"hr","rate":${laborRate},"total":0}],"assumptions":["Estimate only; subject to site conditions"],"timeline":"..."}
+Max 6 items. Be concise.`
 
-    const userPrompt = `Electrical estimate for: ${description}`
+    const userPrompt = `Electrical estimate: ${description}`
 
-    // Stream the response to avoid Vercel timeout
+    // TRUE STREAMING - pipe OpenAI chunks directly to client
     const encoder = new TextEncoder()
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // Send a keepalive while waiting
-          controller.enqueue(encoder.encode(' '))
+          let fullContent = ''
 
-          const response = await getOpenAI().chat.completions.create({
+          // Stream from OpenAI with reduced token count
+          const aiStream = await getOpenAI().chat.completions.create({
             model: 'gpt-4o-mini',
             messages: [
               { role: 'system', content: systemPrompt },
@@ -61,11 +61,22 @@ Labor rate: $${laborRate}/hr. Always include "Estimate only; final pricing subje
             ],
             response_format: { type: 'json_object' },
             temperature: 0.3,
-            max_tokens: 1500,
+            max_tokens: 500, // REDUCED from 1500 to speed up
+            stream: true, // TRUE STREAMING!
           })
 
-          const content = response.choices[0].message.content || '{}'
-          const estimate = JSON.parse(content)
+          // Stream chunks to client as they arrive
+          for await (const chunk of aiStream) {
+            const content = chunk.choices[0]?.delta?.content || ''
+            if (content) {
+              fullContent += content
+              // Send keepalive chunks to prevent timeout
+              controller.enqueue(encoder.encode(' '))
+            }
+          }
+
+          // Parse complete response
+          const estimate = JSON.parse(fullContent)
 
           // Calculate totals
           const subtotal = (estimate.lineItems || []).reduce((sum: number, item: any) => sum + (item.total || 0), 0)
@@ -88,12 +99,16 @@ Labor rate: $${laborRate}/hr. Always include "Estimate only; final pricing subje
               total,
               status: 'draft',
               assumptions: estimate.assumptions,
-              recommendations: estimate.recommendations,
+              recommendations: estimate.recommendations || [],
               timeline: estimate.timeline,
               photos: photos || null,
             })
             .select()
             .single()
+
+          if (dbError) {
+            console.error('[Generate] DB error:', dbError)
+          }
 
           const result = JSON.stringify({
             success: true,
@@ -104,7 +119,11 @@ Labor rate: $${laborRate}/hr. Always include "Estimate only; final pricing subje
           controller.enqueue(encoder.encode(result))
           controller.close()
         } catch (err: any) {
-          const errResult = JSON.stringify({ error: err.message || 'Failed to generate estimate' })
+          console.error('[Generate] Stream error:', err)
+          const errResult = JSON.stringify({ 
+            error: err.message || 'Failed to generate estimate',
+            details: err.stack 
+          })
           controller.enqueue(encoder.encode(errResult))
           controller.close()
         }
