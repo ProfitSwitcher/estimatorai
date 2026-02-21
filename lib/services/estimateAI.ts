@@ -81,13 +81,29 @@ export interface ChatResponse {
 function getModelName(tier: ModelTier): string {
   switch (tier) {
     case 'fast':
-      return 'gpt-4o-mini'
+      return 'claude-sonnet-4-20250514'
     case 'pro':
-      return 'gpt-4o'
+      return 'claude-opus-4-20250514'
     case 'expert':
-      return 'claude-sonnet-4-5'
+      return 'gpt-5.3-codex'
     default:
-      return 'gpt-4o'
+      return 'claude-opus-4-20250514'
+  }
+}
+
+/**
+ * Determine which provider to use based on model tier
+ */
+function getProvider(tier: ModelTier): 'openai' | 'anthropic' {
+  switch (tier) {
+    case 'fast':
+      return 'anthropic'
+    case 'pro':
+      return 'anthropic'
+    case 'expert':
+      return 'openai'
+    default:
+      return 'anthropic'
   }
 }
 
@@ -102,9 +118,10 @@ async function getAICompletion(
   jsonMode: boolean = false
 ): Promise<string> {
   const modelName = getModelName(modelTier)
+  const provider = getProvider(modelTier)
   
-  if (modelTier === 'expert') {
-    // Use Anthropic Claude
+  if (provider === 'anthropic') {
+    // Use Anthropic Claude (Fast = Sonnet 4, Pro = Opus 4)
     try {
       const anthropic = getAnthropic()
       
@@ -134,7 +151,7 @@ async function getAICompletion(
         }))
       
       const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: modelName,
         max_tokens: maxTokens,
         temperature,
         system: systemMessage?.content as string || '',
@@ -145,7 +162,7 @@ async function getAICompletion(
       return (textContent as any)?.text || ''
     } catch (error: any) {
       if (error.message?.includes('ANTHROPIC_API_KEY')) {
-        throw new Error('Expert model requires Anthropic API key. Please add ANTHROPIC_API_KEY to your environment or use Pro/Fast models.')
+        throw new Error('This model requires Anthropic API key. Please add ANTHROPIC_API_KEY to your environment.')
       }
       throw error
     }
@@ -339,7 +356,9 @@ export async function analyzePhotos(
   Extract: dimensions, materials visible, condition, damage, existing fixtures, 
   site access, and any cost-relevant details. Be specific and quantitative when possible.`
 
-  if (modelTier === 'expert') {
+  const photoProvider = getProvider(modelTier)
+  
+  if (photoProvider === 'anthropic') {
     // Use Claude vision
     const anthropic = getAnthropic()
     
@@ -353,7 +372,7 @@ export async function analyzePhotos(
     }))
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: getModelName(modelTier),
       max_tokens: 2000,
       temperature: 0.3,
       system: systemMessage,
@@ -389,7 +408,7 @@ export async function analyzePhotos(
     ]
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: getModelName(modelTier),
       messages,
       max_tokens: 2000,
       temperature: 0.3

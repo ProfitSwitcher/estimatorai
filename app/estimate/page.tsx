@@ -57,22 +57,22 @@ const MODEL_TIERS = [
     tier: 'fast' as ModelTier,
     icon: '⚡',
     name: 'Fast',
-    description: 'Quick estimates, good accuracy',
-    model: 'GPT-4o Mini'
+    description: 'Quick estimates, great accuracy',
+    model: 'Claude Sonnet 4.5'
   },
   {
     tier: 'pro' as ModelTier,
     icon: '🎯',
     name: 'Pro',
-    description: 'Detailed estimates, great accuracy',
-    model: 'GPT-4o'
+    description: 'Detailed estimates, top-tier accuracy',
+    model: 'Claude Opus 4.6'
   },
   {
     tier: 'expert' as ModelTier,
     icon: '🧠',
     name: 'Expert',
-    description: 'Best possible analysis',
-    model: 'Claude Sonnet 4'
+    description: 'Maximum reasoning power',
+    model: 'GPT-5.3 Codex'
   }
 ]
 
