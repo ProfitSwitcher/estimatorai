@@ -24,6 +24,7 @@ export default withAuth(
       if (!profile && (
         req.nextUrl.pathname.startsWith('/dashboard') ||
         req.nextUrl.pathname.startsWith('/estimate') ||
+        req.nextUrl.pathname.startsWith('/phone') ||
         req.nextUrl.pathname.startsWith('/api/estimates')
       )) {
         const url = req.nextUrl.clone()
@@ -50,9 +51,11 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/estimate/:path*',
+    '/phone/:path*',
     '/onboarding',
     '/api/estimates/:path*',
     '/api/company-profile/:path*',
+    '/api/phone-assistant/:path*',
     '/api/stripe/:path*',
   ],
 }

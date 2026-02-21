@@ -33,12 +33,20 @@ interface LearningStats {
   recentLearnings: Array<{ type: string; content: string; date: string }>
 }
 
+interface PhoneAssistantStats {
+  phone_number: string | null
+  callsToday: number
+  callsThisWeek: number
+  callsNeedingFollowUp: number
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [estimates, setEstimates] = useState<EstimateSummary[]>([])
   const [profile, setProfile] = useState<CompanyProfile | null>(null)
   const [learningStats, setLearningStats] = useState<LearningStats | null>(null)
+  const [phoneStats, setPhoneStats] = useState<PhoneAssistantStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -67,6 +75,29 @@ export default function DashboardPage() {
       const userId = (session!.user as any).id
       const stats = await getLearningStats(userId)
       setLearningStats(stats)
+
+      // Load phone assistant stats
+      try {
+        const phoneRes = await axios.get('/api/phone-assistant')
+        const callsRes = await axios.get('/api/phone-assistant/calls', { params: { limit: 100 } })
+        
+        const calls = callsRes.data.calls || []
+        const today = new Date()
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        
+        setPhoneStats({
+          phone_number: phoneRes.data.phoneAssistant?.phone_number || null,
+          callsToday: calls.filter((c: any) => {
+            const callDate = new Date(c.created_at)
+            return callDate.toDateString() === today.toDateString()
+          }).length,
+          callsThisWeek: calls.filter((c: any) => new Date(c.created_at) >= weekAgo).length,
+          callsNeedingFollowUp: calls.filter((c: any) => c.action_needed).length
+        })
+      } catch (phoneError) {
+        // Phone assistant not set up yet
+        setPhoneStats(null)
+      }
     } catch (error) {
       console.error('Error loading dashboard data:', error)
       toast({ title: 'Error loading dashboard' })
@@ -245,6 +276,80 @@ export default function DashboardPage() {
                 </div>
               </Link>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Phone Assistant */}
+        <Card className="bg-gray-800 border-gray-700 mb-6">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-white">📞 Phone Assistant</CardTitle>
+              <Link href="/phone">
+                <Button variant="outline" size="sm">
+                  {phoneStats?.phone_number ? 'Manage' : 'Set Up'}
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {phoneStats?.phone_number ? (
+              <>
+                <p className="text-gray-300 mb-4">
+                  Your AI phone assistant is answering calls and capturing leads 24/7.
+                </p>
+                <div className="bg-gray-700 p-4 rounded mb-4">
+                  <p className="text-sm text-gray-400 mb-1">Your Phone Number</p>
+                  <p className="text-2xl font-bold text-white">{phoneStats.phone_number}</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-blue-900 p-3 rounded">
+                    <p className="text-sm text-blue-200">Calls Today</p>
+                    <p className="text-2xl font-bold text-white">{phoneStats.callsToday}</p>
+                  </div>
+                  <div className="bg-green-900 p-3 rounded">
+                    <p className="text-sm text-green-200">This Week</p>
+                    <p className="text-2xl font-bold text-white">{phoneStats.callsThisWeek}</p>
+                  </div>
+                  <div className="bg-yellow-900 p-3 rounded">
+                    <p className="text-sm text-yellow-200">Need Follow-Up</p>
+                    <p className="text-2xl font-bold text-white">{phoneStats.callsNeedingFollowUp}</p>
+                  </div>
+                </div>
+                {phoneStats.callsNeedingFollowUp > 0 && (
+                  <div className="mt-4 bg-yellow-900 text-yellow-100 p-3 rounded">
+                    <p className="font-semibold">⚠️ {phoneStats.callsNeedingFollowUp} call{phoneStats.callsNeedingFollowUp > 1 ? 's' : ''} need follow-up</p>
+                    <Link href="/phone" className="text-sm underline">
+                      View call logs →
+                    </Link>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="text-gray-300 mb-4">
+                  Get a dedicated phone number with an AI assistant that answers calls, qualifies leads, and captures project details 24/7.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="bg-gray-700 p-3 rounded">
+                    <p className="text-lg mb-1">📞 Never Miss a Call</p>
+                    <p className="text-xs text-gray-400">24/7 availability</p>
+                  </div>
+                  <div className="bg-gray-700 p-3 rounded">
+                    <p className="text-lg mb-1">🎯 Qualify Leads</p>
+                    <p className="text-xs text-gray-400">Capture project details</p>
+                  </div>
+                  <div className="bg-gray-700 p-3 rounded">
+                    <p className="text-lg mb-1">💰 Save Time</p>
+                    <p className="text-xs text-gray-400">Focus on real work</p>
+                  </div>
+                </div>
+                <Link href="/phone">
+                  <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
+                    Set Up Phone Assistant
+                  </Button>
+                </Link>
+              </>
+            )}
           </CardContent>
         </Card>
 

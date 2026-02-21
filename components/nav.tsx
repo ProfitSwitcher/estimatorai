@@ -52,6 +52,16 @@ export default function Nav() {
               >
                 🧠 Business Advisor
               </Link>
+              <Link
+                href="/phone"
+                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  isActive('/phone')
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
+              >
+                📞 Phone
+              </Link>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -101,6 +111,16 @@ export default function Nav() {
             }`}
           >
             🧠 Business Advisor
+          </Link>
+          <Link
+            href="/phone"
+            className={`block px-3 py-2 rounded-md text-base font-medium ${
+              isActive('/phone')
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            📞 Phone
           </Link>
         </div>
       </div>
