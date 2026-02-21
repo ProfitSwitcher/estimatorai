@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'outline' | 'ghost' | 'destructive'
-  size?: 'default' | 'sm' | 'lg'
+  size?: 'default' | 'sm' | 'lg' | 'icon'
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -15,7 +15,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ghost: 'hover:bg-gray-100',
       destructive: 'bg-red-600 text-white hover:bg-red-700',
     }
-    const sizes = { default: 'px-4 py-2 text-sm', sm: 'px-3 py-1.5 text-xs', lg: 'px-6 py-3 text-base' }
+    const sizes = { default: 'px-4 py-2 text-sm', sm: 'px-3 py-1.5 text-xs', lg: 'px-6 py-3 text-base', icon: 'p-2 text-lg' }
     return <button ref={ref} className={cn(base, variants[variant], sizes[size], className)} {...props} />
   }
 )
