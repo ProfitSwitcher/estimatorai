@@ -6,6 +6,14 @@ import { buildSystemPrompt } from './agentContext'
 // Model tier type
 export type ModelTier = 'fast' | 'pro' | 'expert'
 
+/**
+ * Strip markdown code fences from AI responses (Claude wraps JSON in ```json ... ```)
+ */
+function stripCodeFences(text: string): string {
+  if (!text) return text
+  return text.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim()
+}
+
 // OpenAI client
 let _openai: OpenAI | null = null
 function getOpenAI(): OpenAI {
@@ -256,7 +264,7 @@ Answer with JSON: {"hasEnoughInfo": true/false, "reasoning": "brief explanation"
   ]
 
   const response = await getAICompletion(decisionMessages, 'fast', 0.2, 500, true)
-  const decision = JSON.parse(response || '{"hasEnoughInfo": false}')
+  const decision = JSON.parse(stripCodeFences(response) || '{"hasEnoughInfo": false}')
   return decision.hasEnoughInfo === true
 }
 
@@ -318,7 +326,7 @@ async function generateStructuredEstimate(
     true
   )
 
-  const estimateData = JSON.parse(response || '{}')
+  const estimateData = JSON.parse(stripCodeFences(response) || '{}')
 
   // Calculate totals
   const subtotal = estimateData.lineItems?.reduce(
