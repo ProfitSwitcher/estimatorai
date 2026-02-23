@@ -148,6 +148,36 @@ export default function DashboardPage() {
           </Link>
         </div>
 
+
+        {/* Upgrade Banner — shown on free plan with 3+ estimates used */}
+        {(() => {
+          const tier = (session.user as any)?.subscriptionTier
+          const isFree = !tier || tier === 'free'
+          const used = estimates.length
+          const remaining = Math.max(0, 5 - used)
+          if (!isFree || used < 3) return null
+          return (
+            <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 shadow-lg">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <p className="font-bold text-white text-sm sm:text-base">
+                    You have {remaining} of 5 free estimate{remaining !== 1 ? 's' : ''} remaining
+                  </p>
+                  <p className="text-amber-100 text-xs sm:text-sm">
+                    Upgrade to Pro for unlimited estimates and all features.
+                  </p>
+                </div>
+              </div>
+              <a
+                href="/pricing"
+                className="flex-shrink-0 rounded-lg bg-white px-5 py-2 text-sm font-bold text-orange-600 hover:bg-orange-50 transition shadow"
+              >
+                Upgrade to Pro →
+              </a>
+            </div>
+          )
+        })()}
         {/* Company Profile Summary */}
         <Card className="bg-gray-800 border-gray-700 mb-6">
           <CardHeader>
