@@ -44,6 +44,7 @@ export default function HomePage() {
         </span>
         <div className="hidden md:flex items-center gap-8 text-gray-600 font-medium">
           <Link href="/pricing" className="hover:text-blue-600 transition">Pricing</Link>
+          <Link href="/blog" className="hover:text-blue-600 transition">Blog</Link>
           <Link href="/login" className="hover:text-blue-600 transition">Sign In</Link>
           <Link
             href="/register"
@@ -55,6 +56,7 @@ export default function HomePage() {
         {/* Mobile nav */}
         <div className="flex md:hidden items-center gap-3">
           <Link href="/pricing" className="text-gray-600 text-sm font-medium">Pricing</Link>
+          <Link href="/blog" className="text-gray-600 text-sm font-medium">Blog</Link>
           <Link
             href="/register"
             className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold"

@@ -19,7 +19,7 @@ export default function Nav() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link href="/dashboard" className="flex items-center px-2 text-xl font-bold text-white">
-              EstimatorAI
+              BuilderMind AI
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
               <Link
@@ -51,6 +51,16 @@ export default function Nav() {
                 }`}
               >
                 🧠 Business Advisor
+              </Link>
+              <Link
+                href="/blog"
+                className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  isActive('/blog')
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                }`}
+              >
+                📝 Blog
               </Link>
               <Link
                 href="/phone"
